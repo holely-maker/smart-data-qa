@@ -10,14 +10,39 @@
 from __future__ import annotations
 
 import argparse
+import os
 import random
 import sqlite3
+import tempfile
 from pathlib import Path
 
 from schema import DATA_END, DATA_START, TABLE
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_DB_PATH = BASE_DIR / "finance.db"
+
+
+def _writable(directory: Path) -> bool:
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        probe = directory / ".smartdata_write_test"
+        probe.write_text("", encoding="utf-8")
+        probe.unlink()
+        return True
+    except OSError:
+        return False
+
+
+def _default_db_path() -> Path:
+    override = os.environ.get("SMARTDATA_DB")
+    if override:
+        return Path(override)
+    # Streamlit Cloud 的代码目录可能是只读的，此时回退到临时目录。
+    if _writable(BASE_DIR):
+        return BASE_DIR / "finance.db"
+    return Path(tempfile.gettempdir()) / "smartdata_finance.db"
+
+
+DEFAULT_DB_PATH = _default_db_path()
 
 PRODUCT_LINES = ["智能硬件", "软件订阅", "数据服务", "云服务"]
 REGIONS = ["华东", "华南", "华北", "西南"]
