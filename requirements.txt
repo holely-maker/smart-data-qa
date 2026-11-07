@@ -1,0 +1,8 @@
+streamlit==1.67.0
+pandas==2.3.3
+plotly==7.1.0
+pytest>=8.0
+# Windows 本地保留 numpy 1.x / pyarrow 20，兼容本机已有的 scipy 1.10 等旧依赖。
+# Streamlit Community Cloud 为 Linux，会自动使用与新版 numpy 兼容的最新 pyarrow。
+numpy>=1.26.4,<2; sys_platform == "win32"
+pyarrow>=15,<21; sys_platform == "win32"
